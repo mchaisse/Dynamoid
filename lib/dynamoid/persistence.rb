@@ -157,6 +157,8 @@ module Dynamoid
           else
             raise ArgumentError, "Neither #{field_class} nor #{value} support serialization for Dynamoid."
           end
+        elsif %i(null not_null).include?(value)
+          value
         else
           case options[:type]
           when :string

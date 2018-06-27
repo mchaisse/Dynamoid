@@ -217,6 +217,10 @@ module Dynamoid #:nodoc:
                  { contains: val }
                when 'not_contains'
                  { not_contains: val }
+               when 'not_null'
+                 :not_null
+               when 'null'
+                 :null
                end
 
         { name.to_sym => hash }
@@ -253,7 +257,7 @@ module Dynamoid #:nodoc:
             opts.update(field_hash(key))
           else
             value = type_cast_condition_parameter(key, query[key])
-            opts[key] = { eq: value }
+            opts[key] = %i(null not_null).include?(value) ? value : { eq: value }
           end
         end
 

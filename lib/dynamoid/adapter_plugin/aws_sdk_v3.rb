@@ -27,6 +27,8 @@ module Dynamoid
         begins_with:  'BEGINS_WITH',
         between:      'BETWEEN',
         in:           'IN',
+        not_null:     'NOT_NULL',
+        null:         'NULL',
         contains:     'CONTAINS',
         not_contains: 'NOT_CONTAINS'
       }.freeze
@@ -550,8 +552,8 @@ module Dynamoid
         query_filter = {}
         opts.reject { |k, _| k.in? RANGE_MAP.keys }.each do |attr, hash|
           query_filter[attr] = {
-            comparison_operator: FIELD_MAP[hash.keys[0]],
-            attribute_value_list: attribute_value_list(FIELD_MAP[hash.keys[0]], hash.values[0].freeze)
+            comparison_operator: FIELD_MAP[hash.is_a?(Hash) ? hash.keys[0] : hash],
+            attribute_value_list: hash.is_a?(Hash) ? attribute_value_list(FIELD_MAP[hash.keys[0]], hash.values[0].freeze) : nil
           }
         end
 
@@ -632,9 +634,9 @@ module Dynamoid
         if scan_hash.present?
           request[:scan_filter] = scan_hash.reduce({}) do |memo, (attr, cond)|
             memo.merge(attr.to_s => {
-                         comparison_operator: FIELD_MAP[cond.keys[0]],
-                         attribute_value_list: attribute_value_list(FIELD_MAP[cond.keys[0]], cond.values[0].freeze)
-                       })
+              comparison_operator: FIELD_MAP[cond.is_a?(Hash) ? cond.keys[0] : cond],
+              attribute_value_list: cond.is_a?(Hash) ? attribute_value_list(FIELD_MAP[cond.keys[0]], cond.values[0].freeze) : nil
+            })
           end
         end
 
